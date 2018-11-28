@@ -1,0 +1,4 @@
+time docker run -v /home/bix/Desktop/:/smac/results hfx320/smac:latest -t "breast AND cancer" -l 100000 -s 1 -e s.pirro@qmul.ac.uk
+docker build -t smac .
+docker tag smac hfx320/smac
+docker push hfx320/smac
