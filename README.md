@@ -25,7 +25,7 @@ By running this command (once defined a valid folder and email address), SMAC wi
 A detailed description of all the available commands for SMAC is available while typing:
 `docker run -v <folder where to save the results of your analysis>:/smac/results hfx320/smac:latest -h`
 
-`-t TERMS [TERMS ...], --terms TERMS [TERMS ...]
+`-t TERMS [TERMS ...], --terms TERMS [TERMS ...]<br/>
                         terms for performing the analysis
   -p PMIDS, --pmids PMIDS
                         file with list of pmids to download and analyse
