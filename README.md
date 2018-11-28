@@ -22,22 +22,14 @@ Once SMAC docker is correctly downloaded and installed on your system, the follo
 
 By running this command (once defined a valid folder and email address), SMAC will explore the literature and will retrieve the first impacting 10,000 papers about BREAST CANCER. Since we skipped the retrieval of molecular data (`-s 1`), the analysis will not continue further.
 
-A detailed description of all the available commands for SMAC is available while typing:
+A detailed description of all the available commands for SMAC is available while typing:<br>
 `docker run -v <folder where to save the results of your analysis>:/smac/results hfx320/smac:latest -h`
 
-`-t TERMS [TERMS ...], --terms TERMS [TERMS ...]<br/>
-                        terms for performing the analysis
-  -p PMIDS, --pmids PMIDS
-                        file with list of pmids to download and analyse
-  -l LIMIT, --limit LIMIT
-                        max number of publications to retrieve
-  -a ANALYSIS, --analysis ANALYSIS
-                        analysis to perform (separated by comma) [pca,receptor
-                        _status,molecular_classification,tumour_purity,gene_ex
-                        pression]
-  -s {0,1}, --skip {0,1}
-                        do you want to skip GSE download/analysis [1=yes, skip
-                        the analysis, 0=no]
-  -e EMAIL, --email EMAIL
-                        email for retrieving the papers
-`
+| Long Command | Short Command | Values | Description |
+| ------------ | ------------- | ------ | ----------- |
+| -t           | --terms       | Any sentence separated by AND/OR logic gates | Use this if you want to perform an analysis based on a research topic. **Excludes** the use of -l argument! |
+| -p           | --pmids       | File path | Upload a file containing a list of PMIDs to download and analyse. **Excludes** the use of -t argument! |
+| -l           | --limit       | Numeric value | Maximum number of publications to retrieve from PubMed. If empty (not set), **all** the papers regarding the topic will be explored. |
+| -a           | --analysis      | comma-separated string | Analysis the user can perform [pca,receptor_status,molecular_classification,tumour_purity,gene_expression] |
+| -s           | --skip     | 0,1 | do you want to skip GSE download/analysis [1=yes, skip the analysis, 0=no] |
+| -e           | --email      | valid email address | The email address is necessary for retrieving the information using the Entrez API and the IP address not be blocked |
