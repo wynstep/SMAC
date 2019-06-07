@@ -29,7 +29,8 @@ A detailed description of all the available commands for SMAC is available while
 | ------------ | ------------- | ------ | ----------- |
 | -t           | --terms       | Any sentence separated by AND/OR logic gates | Use this if you want to perform an analysis based on a research topic. **Excludes** the use of -l argument! |
 | -p           | --pmids       | File path | Upload a file containing a list of PMIDs to download and analyse. **Excludes** the use of -t argument! |
-| -l           | --limit       | Numeric value | Maximum number of publications to retrieve from PubMed. If empty (not set), **all** the papers regarding the topic will be explored. |
+| -l           | --limit       | Numeric/string value | Maximum number of publications to retrieve from PubMed. If set to "all", **all** the papers regarding the topic will be explored. |
 | -a           | --analysis      | comma-separated string | Analysis the user can perform [pca,receptor_status,molecular_classification,tumour_purity,gene_expression] |
+| -n           | --ngenes      | Numeric value | Number of top differentially-expressed genes to plot in the gene expression analysis |
 | -s           | --skip     | 0,1 | do you want to skip GSE download/analysis [1=yes, skip the analysis, 0=no] |
 | -e           | --email      | valid email address | The email address is necessary for retrieving the information using the Entrez API and the IP address not be blocked |
