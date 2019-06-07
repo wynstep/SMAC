@@ -79,7 +79,7 @@ outFolder <- opt$dir
   selected_samples <- intersect(as.character(annData[,1]),colnames(expData))
 
   # subsetting expression file
-  expData.subset <- expData[,colnames(expData) %in% selected_samples]
+  expData.subset <- expData[complete.cases(expData),colnames(expData) %in% selected_samples]
 
   # subsetting annData
   annData.subset <- annData[annData[,1] %in% selected_samples,]
@@ -122,6 +122,7 @@ outFolder <- opt$dir
 
   ### ScatterPlots (3D, 2D) ###
     # Prepare DataFrame
+	targets.labels <- as.character(lapply(as.character(targets.groups), CutString, n_words=2)) # we cut the string if it's too long
     expData.pca.df <- data.frame(targets.groups, expData.pca$x[,PC1], expData.pca$x[,PC2], expData.pca$x[,PC3])
     colnames(expData.pca.df) <- c("Target", "PC1", "PC2", "PC3")
     # Plotting 2D scatterplot

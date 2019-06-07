@@ -53,49 +53,62 @@ outFolder <- opt$dir
 #   Downloading GSE files
 #===============================================================================
 
-GEO_dataset <- suppressMessages(getGEO(GEO=gse, GSElimits=NULL, GSEMatrix=TRUE, AnnotGPL=TRUE))
+GEO_dataset <- suppressMessages(getGEO(GEO=gse, GSElimits=NULL, GSEMatrix=TRUE, AnnotGPL=TRUE, getGPL=FALSE))
 
 # Iterating into all the GEO datasets
 for (i in 1:length(GEO_dataset)) {
 	# Exporting expression file as dataframe
 	exprs_df <- as.data.frame(exprs(GEO_dataset[[i]]), stringsAsFactors=FALSE)
 
-	# Downloading the annotation file
-	annotation <- getGEO(annotation(GEO_dataset[[i]]))
-
-	# Create dictionary probe - gene_name from annotation file
+	### UPDATE 2019 -05-20 - Detect if the Expression Dataframe is empty, otherwise skip it's analysis
+	if (nrow(exprs_df)>0) {
+		# Downloading the annotation file
+		annotation <- getGEO(annotation(GEO_dataset[[i]]))
+		# Create dictionary probe - gene_name from annotation file
 		# Get index for Gene Symbol column
-		gene_symbol_col_index <- grep("[Gg]ene.+[Ss]ymbol", colnames(Table(annotation)))
+		gene_symbol_col_index <- grep("^gene(.+|)(symbol|name|id)", tolower(colnames(Table(annotation))))
 
-		# Subsetting annotation file and adding probes as rownames
-		annotation_df <- as.data.frame(Table(annotation)[,gene_symbol_col_index], stringsAsFactors=FALSE)
-		rownames(annotation_df) = Table(annotation)[,1]
+		### Update 2019-05-20, we perform the probes mapping just if a clear indication of the gene name is provided, otherwise we leave the probe name as well as the annotation file
+		if (length(gene_symbol_col_index) > 0) {
+			# Subsetting annotation file and adding probes as rownames
+			annotation_df <- as.data.frame(Table(annotation)[,gene_symbol_col_index[1]], stringsAsFactors=FALSE)
+			rownames(annotation_df) = Table(annotation)[,1]
 
-	# Binding expression file and annotation df
-	expr_df_converted = merge(annotation_df, exprs_df, by="row.names")
-	# Formatting final expression file
-		expr_df_converted[,1] <- NULL # this removes the probe column
-		colnames(expr_df_converted)[1] <- "Gene_name" # renaming the columns containing the gene name
-	# Removing duplicated genes, selecting just the most variable
-	expr_df_converted <- selectDuplicatedGenes(expr_df_converted)
+			# Binding expression file and annotation df
+			expr_df_converted = merge(annotation_df, exprs_df, by="row.names")
+			# Formatting final expression file
+			expr_df_converted[,1] <- NULL # this removes the probe column
+			colnames(expr_df_converted)[1] <- "Gene_name" # renaming the columns containing the gene name
+			# Removing duplicated genes, selecting just the most variable
+			expr_df_converted <- selectDuplicatedGenes(expr_df_converted)
+		} else {
+			# The "converted" expression dataframe is the original one
+			expr_df_converted <- exprs_df
+		}
 
-	# Downloading phenoData
-	phenoData <- as.data.frame(pData(GEO_dataset[[i]]), stringsAsFactors=FALSE)
-	# Adding Sample Names colums
-	phenoData$SampleName <- rownames(phenoData)
-	# Renaming characteristics column (most important of the file)
+		# Downloading phenoData
+		phenoData <- as.data.frame(pData(GEO_dataset[[i]]), stringsAsFactors=FALSE)
+		# Adding Sample Names colums
+		phenoData$SampleName <- rownames(phenoData)
+		# Renaming characteristics column (most important of the file)
 		characteristics_col_index <- grep("[Ss]ource.+[Nn]ame", colnames(phenoData))
 		colnames(phenoData)[characteristics_col_index] = "SampleChar"
 
-	#===============================================================================
-	#     Exporting files
-	#===============================================================================
+		#===============================================================================
+		#     Exporting files
+		#===============================================================================
 
-	# Saving expression matrix
-	expr_df_converted.fn = paste0(outFolder,"/eData.",i,".tsv")
-	write.table(expr_df_converted, file=expr_df_converted.fn, quote=F, sep="\t", col.names=T, row.names=T)
+		# Saving expression matrix
+		expr_df_converted.fn = paste0(outFolder,"/eData.",i,".tsv")
+		write.table(expr_df_converted, file=expr_df_converted.fn, quote=F, sep="\t", col.names=T, row.names=T)
 
-	# Saving phenoData
-	phenoData.fn =  paste0(outFolder,"/pData.",i,".tsv")
-	write.table(phenoData, file=phenoData.fn, quote=F, sep="\t", col.names=T, row.names=F)
+		# Saving phenoData
+		phenoData.fn =  paste0(outFolder,"/pData.",i,".tsv")
+		write.table(phenoData, file=phenoData.fn, quote=F, sep="\t", col.names=T, row.names=F)
+
+		# saving annotationData
+		annoData.fn = paste0(outFolder,"/aData.",i,".tsv")
+		annoData.df = as.data.frame(Table(annotation)[,], stringsAsFactors=FALSE)
+		write.table(annoData.df, file=annoData.fn, quote=F, sep="\t", col.names=T, row.names=F)
+	}
 }

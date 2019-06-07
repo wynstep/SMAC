@@ -150,3 +150,13 @@ computeInfoScore <- function(info) {
   score = ifelse(is.na(score), 0, score)
   return(score)
 }
+
+# This function cuts the target string (if it's longer than a specific length) and cut it
+CutString <- function(string, n_words) {
+	ul <- unlist(strsplit(string, split="\\s+"))
+	if (length(ul) > n_words) {
+		paste0(paste(ul[1:n_words],collapse=" "),"...")
+	} else {
+		paste(ul,collapse=" ")
+	}
+}

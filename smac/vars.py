@@ -11,9 +11,13 @@ exec_1_err = """Sorry, I cannot exec the SMAC program because you did not select
               Please run 'python smac.py -h' for details"""
 exec_2_err = """Sorry, I cannot exec the SMAC program because you did not submit any valid analysis.
               Please run 'python smac.py -h' for details"""
-exec_3_err = """Error -- GSE%s folder will be deleted. For possible reasons, please refer to the documentation"""
-exec_4_err = """ERROR -- %s is not a valid analysis. Please refer to the documentation for details"""
-exec_5_err = """ERROR in performing %s -- The analysis will continue"""
+exec_3_err = """	ERROR -- GSE%s dataset cannot be downloaded. Please refer to the documentation for details"""
+exec_4_err = """	ERROR -- %s is not a valid analysis. Please refer to the documentation for details"""
+exec_5_err = """	ERROR in performing %s -- The analysis will continue"""
+
+## Warning messages
+exec_1_warn = """	WARNING -- %s folder is empty and will be removed"""
+exec_2_warn = """	WARNING -- %s folder is not present"""
 
 ## General messages
 welcome_pmid = """#######################################################
@@ -33,4 +37,3 @@ background_terms = ["samples?\s\w+.*?(?=\s)", "replicates?\s\w+.*?(?=\s)"]
 
 ## Folders and file names (fixed)
 src_folder = "src"
-

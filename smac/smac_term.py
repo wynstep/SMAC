@@ -19,10 +19,11 @@ from vars import * # importing custom variables
 parser = argparse.ArgumentParser(description='Welcome to SMAC')
 parser.add_argument('-t','--terms', help='Query terms for selecting publications', required=True, nargs='+')
 parser.add_argument('-l','--limit', help='Maximum number of publications to retrieve', required=False)
-parser.add_argument('-a','--analysis', help='analysis to perform (separated by comma) [pca,mclust,pam50,estimate]', required=True)
+parser.add_argument('-a','--analysis', help='analysis to perform (separated by comma) [pca,receptor_status,molecular_classification,tumour_purity,gene_expression]', required=True)
+parser.add_argument('-n','--ngenes', help='Number of top differentially-expressed genes to plot in the gene expression analysis', required=False)
 parser.add_argument('-e','--email', help='email for retrieving the papers', required=True)
 parser.add_argument('-o','--output', help='output for results', required=True)
-parser.add_argument('-s','--skip', help='do you want to skip GSE download/analysis [1=yes, skip the analysis, 0=no]', required=True)
+parser.add_argument('-s','--skip', type=int, help='do you want to skip GSE download/analysis [1=yes, skip the analysis, 0=no]', choices=[0,1], required=True)
 
 args = vars(parser.parse_args())
 
@@ -51,13 +52,13 @@ if not os.path.exists(root_folder):
 ### Starting the execution of the script
 os.system("clear")
 # print initial message
-print(welcome_pmid % (terms, args["email"], random_code))
+print(welcome_pmid % (terms, args["email"], random_code), end="\r")
 
 # Download papers list from Pubmed
 
-if args["limit"] is not None: # check if the limit argument has been used
+try: # check if the limit argument has been used
 	paper_list = RetrievePapersFromPubmed(terms, args["limit"], args["email"])
-else:
+except:
 	paper_list = RetrievePapersFromPubmed(terms, "all", args["email"])
 
 # Retrieve info and MeSH Headers from papers
@@ -68,7 +69,6 @@ papers_info = all_infos[3]
 
 # Retrieve GEO datasets from papers and analysing -- if skip=0 is selected
 if (args["skip"] == 0):
-	print("\n## Retrieving GEO datasets...")
 	for pmid in papers_info.keys():
 		# total number of gses associated to the pmid
 		tot_gse = len(papers_info[pmid]["gse_codes"])
@@ -87,7 +87,7 @@ if (args["skip"] == 0):
 					os.makedirs(gse_folder)
 
 				# Download GEO dataset
-				PrintInline("Downloading GSE{0} -- PMID: {1} -- {2}/{3}".format(gse, pmid, k+1, tot_gse))
+				PrintInline("	+--Downloading GSE{0} -- PMID: {1} -- {2}/{3}".format(gse, pmid, k+1, tot_gse))
 				DownloadGEODataset(gse, gse_folder)
 				## Create target file for each pData downloaded
 				CreateTargetFile(gse_folder)
@@ -100,14 +100,20 @@ if (args["skip"] == 0):
 				for i in range(0,len(target_files)):
 					target_file = "{0}/target.{1}.tsv".format(gse_folder,str(i+1))
 					expression_file = "{0}/eData.{1}.tsv".format(gse_folder,str(i+1))
-					PerformAnalyses(gse_folder, target_file, expression_file, args["analysis"], str(i+1))
+					PerformAnalyses(gse_folder, target_file, expression_file, args["analysis"], args["ngenes"], str(i+1))
 
 				# Update papers infos with the performed analyses
 				print("\n## Updating infos (with performed analyses)...")
 				papers_info = UpdatePapersInfo(papers_info, pmid, gse, gse_folder, args["analysis"], data_folder)
 
+				### Update 2019-05-21 -- Before continuing we want to be sure that the folder we created is not empty, otherwise the folder will be removed
+				CheckEmptyFolder(gse_folder)
+
+			### Update 2019-05-22 -- Before continuing we want to be sure that the folder we created is not empty, otherwise the folder will be removed
+			CheckEmptyFolder(pmid_folder)
+
 # Save final publications
-print("\n## Save literature report")
+print("## Save literature report")
 CreateLiteratureReport(papers_info, data_folder)
 
 # Retrieve genes from papers
@@ -137,7 +143,7 @@ if (len(mesh_terms) > 0):
 	command = "convert -delay 20 -loop 0 $(find {0} -name 'update_*.png' -print0 | sort -zV | xargs -r0 echo) {1}/entropy_minimisation.gif".format(ent_min_folder,graph_folder)
 	os.system(command)
 	# Calculate p-value fluctuations
-	print("\n## Calculating p-value and kendall-tau fluctuations")
+	print("## Calculating p-value and kendall-tau fluctuations")
 	command = "Rscript scripts/PubMed/CalculatePvalue.R --list {0}/aggregated_mesh.txt --output {1}".format(data_folder, root_folder)
 	os.system(command)
 else:

@@ -118,16 +118,16 @@ ColourNodes <- function (nodes, genes) {
   nodes.coloured <- ColourNodes(nodes, genes)
 
   # creating edges -- for visNetwork
-  edges <- data.frame(from = netData.filtered[,2], 
-                      to = netData.filtered[,5], 
-                      length = netData.filtered[,7], 
+  edges <- data.frame(from = netData.filtered[,2],
+                      to = netData.filtered[,5],
+                      length = netData.filtered[,7],
                       title = paste0("<b> Source: </b>",netData.filtered[,2]," <b> Target: </b>", netData.filtered[,5] ,"<br>
                                       <b> Interaction score: </b>",round(netData.filtered[,7],digits=3),"")
                       )
   #================================================
   # Saving Network
   #================================================
-  WidgetFile = paste0(outFolder,"/gene_network.html")
+  WidgetFile = paste0(outFolder,"/graphs/gene_network.html")
 
   visNetwork(nodes.coloured, edges, height = "600px", width = "100%") %>%
   visEdges(smooth = TRUE, physics = TRUE) %>%
