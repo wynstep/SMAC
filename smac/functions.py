@@ -278,10 +278,11 @@ def CreateTargetFile(gse_folder):
 	# listing target file
 	pData_files = glob.glob("{0}/pData.*.tsv".format(gse_folder))
 	# iterating into the pData files and retrieve the header (for SAMPLES and description)
-	for i in range(0,len(pData_files)):
-		pData_file = "{0}/pData.{1}.tsv".format(gse_folder,str(i+1))
+	for pData_f in pData_files:
+		# extracting file number from filename
+		cont = re.search('.+([0-9]).tsv', pData_f).group(1)
 		try:
-			subprocess.check_call(["Rscript","scripts/DataAnalysis/create_target.R","-p",pData_file,"-d",gse_folder,"-c",str(i+1)], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+			subprocess.check_call(["Rscript","scripts/DataAnalysis/create_target.R","-p",pData_f,"-d",gse_folder,"-c",str(cont)], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 		# manage exec error
 		except subprocess.CalledProcessError as e:
 			#print(e)
@@ -319,8 +320,7 @@ def PerformAnalyses(gse_folder, tFile, eFile, analyses, ngenes, cont):
 				PrintInline("	+-- SUCCESS -- {0}".format(an))
 			# manage exec error
 			except subprocess.CalledProcessError as e:
-				print(e)
-				#PrintInline(exec_5_err % an)
+				PrintInline(exec_5_err % an)
 		else:
 			PrintInline(exec_4_err % an)
 

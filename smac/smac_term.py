@@ -97,10 +97,11 @@ if (args["skip"] == 0):
 
 				# Perform the selected analyses for each expression data and target file
 				print("\n## Performing selected analyses...")
-				for i in range(0,len(target_files)):
-					target_file = "{0}/target.{1}.tsv".format(gse_folder,str(i+1))
-					expression_file = "{0}/eData.{1}.tsv".format(gse_folder,str(i+1))
-					PerformAnalyses(gse_folder, target_file, expression_file, args["analysis"], args["ngenes"], str(i+1))
+				# Iterating into target files and retrieve the right number of the analysis
+				for t_File in target_files:
+					cont = re.search('.+([0-9]).tsv', t_File).group(1)
+					expression_file = "{0}/eData.{1}.tsv".format(gse_folder,str(cont))
+					PerformAnalyses(gse_folder, t_File, expression_file, args["analysis"], args["ngenes"], str(cont))
 
 				# Update papers infos with the performed analyses
 				print("\n## Updating infos (with performed analyses)...")

@@ -29,6 +29,8 @@ parser.add_argument('-e','--email', help='email for retrieving the papers', requ
 argcomplete.autocomplete(parser)
 args = vars(parser.parse_args())
 output_folder = "results"
+# assigning a default value to ngenes if none
+ngenes = 20 if args["ngenes"] is None else args["ngenes"]
 
 # Checking if the user wants to skip the GSE download/analysis
 if args["skip"] is None:
@@ -55,10 +57,10 @@ if (len(matched_analysis) > 0):
 	# Checking presence of one parameter between -t and -p
 	if (args["terms"] is None and args["pmids"] is not None): # Here we check the pmid list
 		# We call the subscript specific for the pmids
-		os.system("python3 smac_pmid.py -p {0} -a {1} -e {2} -o {3} -s {4} -n {5}".format(args["pmids"],",".join(matched_analysis),args["email"],output_folder,args["skip"], args["ngenes"]))
+		os.system("python3 smac_pmid.py -p {0} -a {1} -e {2} -o {3} -s {4} -n {5}".format(args["pmids"],",".join(matched_analysis),args["email"],output_folder,args["skip"], ngenes))
 	elif (args["pmids"] is None and args["terms"] is not None): # Here we check the terms
 		# We call the subscript specific for the terms
-		os.system("python3 smac_term.py -t {0} -l {1} -a {2} -e {3} -o {4} -s {5} -n {6}".format(" ".join(args["terms"]),args["limit"],",".join(matched_analysis),args["email"],output_folder,args["skip"],args["ngenes"]))
+		os.system("python3 smac_term.py -t {0} -l {1} -a {2} -e {3} -o {4} -s {5} -n {6}".format(" ".join(args["terms"]),args["limit"],",".join(matched_analysis),args["email"],output_folder,args["skip"],ngenes))
 	else:
 		# Here both terms and pmids were not set
 		print(exec_1_err)
